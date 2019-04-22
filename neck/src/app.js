@@ -10,31 +10,30 @@ const GetRoot = (letter) => {
 
 
 
-const Symbol = ({sym, emphasized, select}) => {
+const Symbol = ({sym, emphasized, select, size}) => {
     return (
-        <span style={{
+        <div style={{
             color: emphasized ? "black" : "rgba(0, 0, 0, 0.2)",
             backgroundColor: emphasized ? "green" : "white",
-            margin: 2.5,
-            width: 40,
-            height: 40,
+            height: size,
+            width: size,
             fontSize: 20,
             fontFamily: "monospace",
-            borderRadius: 20,
+            borderRadius: size * 0.5,
             border: "solid black 1px",
             display: "flex",
             alignItems: "center",
             justifyContent: "center"
         }} onClick={(e)=>{
             select(sym);
-        }} >{SymbolList[sym]}</span>
+        }} >{SymbolList[sym]}</div>
     );
 };
 
-const Nut = (props) => {
+const Nut = ({size}) => {
     return (
         <span style={{
-            height: 30,
+            height: size,
             width: 2,
             backgroundColor: "black",
             margin: 2.5,
@@ -42,18 +41,19 @@ const Nut = (props) => {
     );
 }
 
-const String = ({zero, rootNote, symbols, length, selectSymbol}) => {
+const String = ({size, zero, rootNote, symbols, length, selectSymbol}) => {
     let symbs = [];
     for (let i=0; i<length + 1; i++){
         if (i === 1) {
-            symbs.push(<Nut key={"nut"} />);
+            symbs.push(<Nut size={size} key={"nut"} />);
         }
         const symbol = (i + zero - GetRoot(rootNote) + SymbolList.length) % SymbolList.length;
         let emphasized = symbols.indexOf(symbol) > -1;
-        symbs.push(<Symbol emphasized={emphasized} key={i} sym={symbol} select={selectSymbol}/>);
+        symbs.push(<Symbol size={size} emphasized={emphasized} key={i} sym={symbol} select={selectSymbol}/>);
     }
     return (
         <div style={{
+            flexGrow: 1,
             display: "flex",
             flexDirection: "row",
         }}>
@@ -93,19 +93,21 @@ const FretBoard = ({length}) => {
     );
 }
 
-const Neck = ({rootNote, symbols, length, selectSymbol}) => {
+const Neck = ({size, rootNote, symbols, length, selectSymbol}) => {
     return (
         <div style={{
+            flexGrow: 1,
             backgroundColor: "rgba(0, 0, 0, 0.1)",
             padding: 10,
-            borderRadius: 20,
+            display: "flex",
+            flexDirection: "column"
         }}>
-            <String zero={4} rootNote={rootNote} symbols={symbols} selectSymbol={selectSymbol} length={length} />
-            <String zero={11} rootNote={rootNote} symbols={symbols} selectSymbol={selectSymbol} length={length}/>
-            <String zero={7} rootNote={rootNote} symbols={symbols} selectSymbol={selectSymbol} length={length}/>
-            <String zero={2} rootNote={rootNote} symbols={symbols} selectSymbol={selectSymbol} length={length}/>
-            <String zero={9} rootNote={rootNote} symbols={symbols} selectSymbol={selectSymbol} length={length}/>
-            <String zero={4} rootNote={rootNote} symbols={symbols} selectSymbol={selectSymbol} length={length}/>
+            <String size={size} zero={4} rootNote={rootNote} symbols={symbols} selectSymbol={selectSymbol} length={length} />
+            <String size={size} zero={11} rootNote={rootNote} symbols={symbols} selectSymbol={selectSymbol} length={length}/>
+            <String size={size} zero={7} rootNote={rootNote} symbols={symbols} selectSymbol={selectSymbol} length={length}/>
+            <String size={size} zero={2} rootNote={rootNote} symbols={symbols} selectSymbol={selectSymbol} length={length}/>
+            <String size={size} zero={9} rootNote={rootNote} symbols={symbols} selectSymbol={selectSymbol} length={length}/>
+            <String size={size} zero={4} rootNote={rootNote} symbols={symbols} selectSymbol={selectSymbol} length={length}/>
         </div>
     );   
 }
@@ -182,15 +184,34 @@ class App extends React.Component {
     constructor(props){
         super(props);
         this.state = {
+            width: undefined,
+            height: undefined,
             rootNote: "E",
             symbols: [0, 3, 7],
             length: 12
         };
     }
 
+    updateDimensions = () => {
+        this.setState({width: window.innerWidth, height: window.innerHeight});
+    };
+
+    componentWillMount() {
+        this.updateDimensions();
+    }
+
+    componentDidMount(){
+        window.addEventListener("resize", this.updateDimensions);
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener("resize", this.updateDimensions);
+    }
+
     render() {
+        const size = (this.state.width - 12) / (this.state.length + 1);
         return (
-            <div>
+            <div style={{display: "flex", flexDirection: "column"}}>
                 <div>
                     <RootSelector selectedRoot={this.state.rootNote} selectRoot={(rootNote)=>{
                         this.setState({rootNote: rootNote});
@@ -199,7 +220,7 @@ class App extends React.Component {
                         this.setState({symbols: symbols});
                     }}/>
                 </div>
-                <Neck rootNote={this.state.rootNote} symbols={this.state.symbols} length={this.state.length} selectSymbol={(symbol) => {
+                <Neck size={size} rootNote={this.state.rootNote} symbols={this.state.symbols} length={this.state.length} selectSymbol={(symbol) => {
                     if (this.state.symbols.indexOf(symbol) >= 0) {
                         this.state.symbols.splice(this.state.symbols.indexOf(symbol), 1);
                     } else {
