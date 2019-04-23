@@ -12,7 +12,6 @@
   "license": "ISC",
   "devDependencies": {
     "node-gyp": "^3.8.0",
-    "tar": "^4.4.8",
     "webpack-cli": "^3.3.1",
     "webpack-dev-server": "^3.3.1"
   },
