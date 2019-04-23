@@ -50,7 +50,7 @@ const Nut = ({size}) => {
     );
 }
 
-const String = ({size, zero, rootNote, symbols, length, selectSymbol}) => {
+const String = ({size, horizontal, zero, rootNote, symbols, length, selectSymbol}) => {
     let symbs = [];
     for (let i=0; i<length + 1; i++){
         if (i === 1) {
@@ -63,7 +63,7 @@ const String = ({size, zero, rootNote, symbols, length, selectSymbol}) => {
     return (
         <div style={{
             display: "flex",
-            flexDirection: "row",
+            flexDirection: horizontal ? "row" : "column",
             justifyContent: "space-around"
         }}>
             {symbs}
@@ -71,7 +71,7 @@ const String = ({size, zero, rootNote, symbols, length, selectSymbol}) => {
     );
 }
 
-const Neck = ({size, rootNote, symbols, length, selectSymbol}) => {
+const Neck = ({size, horizontal, rootNote, symbols, length, selectSymbol}) => {
     return (
         <div style={{
             flexGrow: 1,
@@ -79,14 +79,14 @@ const Neck = ({size, rootNote, symbols, length, selectSymbol}) => {
             justifyContent: "space-around",
             alignItems: "center",
             display: "flex",
-            flexDirection: "column"
+            flexDirection: horizontal ? "column" : "row"
         }}>
-            <String size={size} zero={4} rootNote={rootNote} symbols={symbols} selectSymbol={selectSymbol} length={length} />
-            <String size={size} zero={11} rootNote={rootNote} symbols={symbols} selectSymbol={selectSymbol} length={length}/>
-            <String size={size} zero={7} rootNote={rootNote} symbols={symbols} selectSymbol={selectSymbol} length={length}/>
-            <String size={size} zero={2} rootNote={rootNote} symbols={symbols} selectSymbol={selectSymbol} length={length}/>
-            <String size={size} zero={9} rootNote={rootNote} symbols={symbols} selectSymbol={selectSymbol} length={length}/>
-            <String size={size} zero={4} rootNote={rootNote} symbols={symbols} selectSymbol={selectSymbol} length={length}/>
+            <String size={size} horizontal={horizontal} zero={4} rootNote={rootNote} symbols={symbols} selectSymbol={selectSymbol} length={length} />
+            <String size={size} horizontal={horizontal} zero={11} rootNote={rootNote} symbols={symbols} selectSymbol={selectSymbol} length={length}/>
+            <String size={size} horizontal={horizontal} zero={7} rootNote={rootNote} symbols={symbols} selectSymbol={selectSymbol} length={length}/>
+            <String size={size} horizontal={horizontal} zero={2} rootNote={rootNote} symbols={symbols} selectSymbol={selectSymbol} length={length}/>
+            <String size={size} horizontal={horizontal} zero={9} rootNote={rootNote} symbols={symbols} selectSymbol={selectSymbol} length={length}/>
+            <String size={size} horizontal={horizontal} zero={4} rootNote={rootNote} symbols={symbols} selectSymbol={selectSymbol} length={length}/>
         </div>
     );   
 }
@@ -142,7 +142,7 @@ const ChordSelector = ({selectSymbols}) => {
     );
 }
 
-const RootSelector = ({selectedRoot, selectRoot}) => {
+const RootSelector = ({horizontal, selectedRoot, selectRoot}) => {
     const rootNotes = RootNotes.map((rootNote) => {
         return <RootSelect key={rootNote} selected={rootNote===selectedRoot} rootNote={rootNote} onClick={(e)=>{
             selectRoot(rootNote);
@@ -151,7 +151,7 @@ const RootSelector = ({selectedRoot, selectRoot}) => {
     return (
         <div style={{
             display: "flex",
-            flexDirection: "column",
+            flexDirection: horizontal ? "column" : "row",
             justifyContent: "space-between"
         }}>{rootNotes}</div>
     );
@@ -199,12 +199,13 @@ class App extends React.Component {
 
     render() {
         const size = (this.state.width - (ROOTS + NUT + 2 * PADDING)) / (this.state.length + 1);
+        const horizontal = this.state.width > this.state.height;
         return (
-            <div style={{display: "flex", flexDirection: "row", height: "100%", width: "100%"}}>
-                <RootSelector selectedRoot={this.state.rootNote} selectRoot={(rootNote)=>{
+            <div style={{display: "flex", flexDirection: horizontal ? "row" : "column", height: "100%", width: "100%"}}>
+                <RootSelector horizontal={horizontal} selectedRoot={this.state.rootNote} selectRoot={(rootNote)=>{
                     this.setState({rootNote: rootNote});
                 }}/>
-                <Neck size={size} rootNote={this.state.rootNote} symbols={this.state.symbols} length={this.state.length} selectSymbol={(symbol) => {
+                <Neck size={size} horizontal={horiztonal} rootNote={this.state.rootNote} symbols={this.state.symbols} length={this.state.length} selectSymbol={(symbol) => {
                     if (this.state.symbols.indexOf(symbol) >= 0) {
                         this.state.symbols.splice(this.state.symbols.indexOf(symbol), 1);
                     } else {
