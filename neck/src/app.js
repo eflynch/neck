@@ -8,19 +8,28 @@ const GetRoot = (letter) => {
     return RootNotes.indexOf(letter);
 }
 
+const NUT = 7;
+const PADDING = 5;
+const ROOTS = 40;
+const SELECTED_BACKGROUND_COLOR = "#616f39";
+const SELECTED_TEXT_COLOR = "#ffd98e";
+const UNSELECTED_BACKGROUND_COLOR = "#ffd98e";
+const UNSELECTED_TEXT_COLOR = "#616f39";
+
 
 
 const Symbol = ({sym, emphasized, select, size}) => {
+    const margin = 2;
     return (
         <div style={{
-            color: emphasized ? "black" : "rgba(0, 0, 0, 0.2)",
-            backgroundColor: emphasized ? "green" : "white",
-            height: size,
-            width: size,
-            fontSize: 20,
-            fontFamily: "monospace",
-            borderRadius: size * 0.5,
-            border: "solid black 1px",
+            color: emphasized ? SELECTED_TEXT_COLOR : UNSELECTED_TEXT_COLOR,
+            backgroundColor: emphasized ? SELECTED_BACKGROUND_COLOR : UNSELECTED_BACKGROUND_COLOR,
+            height: size - 2 * margin,
+            width: size - 2 * margin,
+            fontSize: size * 0.6,
+            borderRadius: (size - 2 * margin) * 0.5,
+            boxShadow: "rgba(0, 0, 0, 0.4) 1px 2px",
+            margin: margin,
             display: "flex",
             alignItems: "center",
             justifyContent: "center"
@@ -53,42 +62,11 @@ const String = ({size, zero, rootNote, symbols, length, selectSymbol}) => {
     }
     return (
         <div style={{
-            flexGrow: 1,
             display: "flex",
             flexDirection: "row",
+            justifyContent: "space-around"
         }}>
             {symbs}
-        </div>
-    );
-}
-
-
-const FretBoard = ({length}) => {
-    let symbols = [];
-    for (let i=0; i<length + 1; i++){
-        let sym = "";
-        if ([3, 5, 7, 9, 11, 13].indexOf(i) >= 0) {
-            sym = "◆" ;
-        }
-        symbols.push(<span style={{
-            margin: 5,
-            width: 51,
-            height: 10,
-            fontSize: 20,
-            fontFamily: "monospace",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center"
-        }} key={i} >{sym}</span>);
-    }
-    return (
-        <div style={{
-            paddingLeft: 7,
-            display: "flex",
-            flexDirection: "row",
-            height: 20,
-        }}>
-        {symbols}
         </div>
     );
 }
@@ -97,8 +75,9 @@ const Neck = ({size, rootNote, symbols, length, selectSymbol}) => {
     return (
         <div style={{
             flexGrow: 1,
-            backgroundColor: "rgba(0, 0, 0, 0.1)",
-            padding: 10,
+            padding: PADDING,
+            justifyContent: "space-around",
+            alignItems: "center",
             display: "flex",
             flexDirection: "column"
         }}>
@@ -115,26 +94,26 @@ const Neck = ({size, rootNote, symbols, length, selectSymbol}) => {
 const RootSelect = ({rootNote, onClick, selected}) => {
     return (
         <button style={{
-            backgroundColor: selected ? "green" : "white",
-            height: 25,
-            fontSize: 10,
+            color: selected ? SELECTED_TEXT_COLOR: UNSELECTED_TEXT_COLOR,
+            backgroundColor: selected ? SELECTED_BACKGROUND_COLOR : UNSELECTED_BACKGROUND_COLOR,
+            width: ROOTS,
+            display: "flex",
+            fontSize: 14,
             borderRadius: 5,
-            fontFamily: "monospace",
             alignItems: "center",
             justifyContent: "center",
             flexGrow: 1,
-        }} onClick={onClick}>{rootNote}</button>
+        }} onClick={onClick}><span>{rootNote}</span></button>
     );
 }
 
 const ChordSelect = ({name, selectSymbols, symbols}) => {
     return (
         <button style={{
-            backgroundColor: "white",
+            backgroundColor: SELECTED_TEXT_COLOR,
             height: 25,
             fontSize: 10,
             borderRadius: 5,
-            fontFamily: "monospace",
             alignItems: "center",
             justifyContent: "center",
             flexGrow: 1,
@@ -148,7 +127,7 @@ const ChordSelector = ({selectSymbols}) => {
     return (
         <div style={{
             display: "flex",
-            justifyContent: "space-between"
+            justifyContent: "space-between",
         }}>
             <ChordSelect name="M" selectSymbols={selectSymbols} symbols={[0, 4, 7]}/>
             <ChordSelect name="m" selectSymbols={selectSymbols} symbols={[0, 3, 7]}/>
@@ -170,13 +149,11 @@ const RootSelector = ({selectedRoot, selectRoot}) => {
         }} />;
     });
     return (
-        <div>
-            <div style={{
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "space-between"
-            }}>{rootNotes}</div>
-        </div>
+        <div style={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between"
+        }}>{rootNotes}</div>
     );
 }
 
@@ -209,17 +186,15 @@ class App extends React.Component {
     }
 
     render() {
-        const size = (this.state.width - 12) / (this.state.length + 1);
+                    // <ChordSelector selectSymbols={(symbols) => {
+                        // this.setState({symbols: symbols});
+                    // }}/>
+        const size = (this.state.width - (ROOTS + NUT + 2 * PADDING)) / (this.state.length + 1);
         return (
-            <div style={{display: "flex", flexDirection: "column"}}>
-                <div>
-                    <RootSelector selectedRoot={this.state.rootNote} selectRoot={(rootNote)=>{
-                        this.setState({rootNote: rootNote});
-                    }}/>
-                    <ChordSelector selectSymbols={(symbols) => {
-                        this.setState({symbols: symbols});
-                    }}/>
-                </div>
+            <div style={{display: "flex", flexDirection: "row", height: "100vh", width: "100vw"}}>
+                <RootSelector selectedRoot={this.state.rootNote} selectRoot={(rootNote)=>{
+                    this.setState({rootNote: rootNote});
+                }}/>
                 <Neck size={size} rootNote={this.state.rootNote} symbols={this.state.symbols} length={this.state.length} selectSymbol={(symbol) => {
                     if (this.state.symbols.indexOf(symbol) >= 0) {
                         this.state.symbols.splice(this.state.symbols.indexOf(symbol), 1);
