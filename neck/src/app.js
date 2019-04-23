@@ -170,8 +170,16 @@ class App extends React.Component {
     }
 
     updateDimensions = () => {
-        const width = document.documentElement.clientWidth || window.innerWidth;
-        const height = document.documentElement.clientHeight || window.innerHeight;
+        var iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; 
+        let width = 0;
+        let height = 0;
+        if (iOS) {
+            width = window.orientation === 0 ? screen.width : screen.height;
+            height = window.orientation === 0 ? screen.height : screen.width;
+        } else {
+            width = window.innerWidth;
+            height = window.innerHeight;
+        }
         setTimeout(()=>{this.setState({width: width, height: height});}, 0);
     };
 
