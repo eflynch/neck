@@ -170,7 +170,7 @@ class App extends React.Component {
     }
 
     updateDimensions = () => {
-        this.setState({width: window.innerWidth, height: window.innerHeight});
+        setTimeout(()=>{this.setState({width: window.innerWidth, height: window.innerHeight});}, 0);
     };
 
     componentWillMount() {
