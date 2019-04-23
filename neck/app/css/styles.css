@@ -1,3 +1,9 @@
+html,
+body {
+  position: fixed;
+  overflow: hidden;
+}
+
 body {
     margin: 0;
     font-family: 'Nanum Gothic Coding', monospace;
