@@ -194,6 +194,7 @@ class App extends React.Component {
         const size = (this.state.width - (ROOTS + NUT + 2 * PADDING)) / (this.state.length + 1);
         return (
             <div style={{display: "flex", flexDirection: "row", height: "100%", width: "100%"}}>
+                {this.state.width, this.state.height}
                 <RootSelector selectedRoot={this.state.rootNote} selectRoot={(rootNote)=>{
                     this.setState({rootNote: rootNote});
                 }}/>
