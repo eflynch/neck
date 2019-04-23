@@ -2,29 +2,30 @@
   "name": "Neck",
   "short_name": "Neck",
   "icons": [{
-    "src": "png/icon-128x128.png",
+    "src": "/neck/png/icon-128x128.png",
       "sizes": "128x128",
       "type": "image/png"
     }, {
-      "src": "png/icon-144x144.png",
+      "src": "/neck/png/icon-144x144.png",
       "sizes": "144x144",
       "type": "image/png"
     }, {
-      "src": "png/icon-152x152.png",
+      "src": "/neck/png/icon-152x152.png",
       "sizes": "152x152",
       "type": "image/png"
     }, {
-      "src": "png/icon-192x192.png",
+      "src": "/neck/png/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "png/icon-512x512.png",
+      "src": "/neck/png/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
   ],
-  "start_url": "/index.html",
+  "start_url": "/neck/index.html",
+  "scope": "/neck/",
   "display": "standalone",
   "background_color": "#ff8364",
   "theme_color": "#ff8364"
