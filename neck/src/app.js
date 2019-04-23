@@ -179,10 +179,12 @@ class App extends React.Component {
 
     componentDidMount(){
         window.addEventListener("resize", this.updateDimensions);
+        document.addEventListener("orientationdhance", this.updateDimensions);
     }
 
     componentWillUnmount() {
         window.removeEventListener("resize", this.updateDimensions);
+        document.removeEventListener("orientationdhance", this.updateDimensions);
     }
 
     render() {
