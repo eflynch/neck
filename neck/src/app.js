@@ -170,7 +170,9 @@ class App extends React.Component {
     }
 
     updateDimensions = () => {
-        setTimeout(()=>{this.setState({width: document.documentElement.clientWidth, height: document.documentElement.clientHeight});}, 0);
+        const width = document.documentElement.clientWidth || window.innerWidth;
+        const height = document.documentElement.clientHeight || window.innerHeight;
+        setTimeout(()=>{this.setState({width: width, height: height});}, 0);
     };
 
     componentWillMount() {
@@ -191,7 +193,6 @@ class App extends React.Component {
         const size = (this.state.width - (ROOTS + NUT + 2 * PADDING)) / (this.state.length + 1);
         return (
             <div style={{display: "flex", flexDirection: "row", height: "100%", width: "100%"}}>
-                <div style={{position:"fixed"}}>{this.state.width}, {this.state.height}</div>
                 <RootSelector selectedRoot={this.state.rootNote} selectRoot={(rootNote)=>{
                     this.setState({rootNote: rootNote});
                 }}/>
