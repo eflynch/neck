@@ -27,6 +27,7 @@
   "start_url": "/neck/index.html",
   "scope": "/neck/",
   "display": "standalone",
+  "orientation":  "landscape",
   "background_color": "#ff8364",
   "theme_color": "#ff8364"
 }
