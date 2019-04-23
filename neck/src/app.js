@@ -39,11 +39,11 @@ const Symbol = ({sym, emphasized, select, size}) => {
     );
 };
 
-const Nut = ({size}) => {
+const Nut = ({size, horizontal}) => {
     return (
         <span style={{
-            height: size,
-            width: 2,
+            height: horizontal ? size : 2,
+            width: horizontal ? 2 : size,
             backgroundColor: "black",
             margin: 2.5,
         }}></span>
@@ -54,7 +54,7 @@ const String = ({size, horizontal, zero, rootNote, symbols, length, selectSymbol
     let symbs = [];
     for (let i=0; i<length + 1; i++){
         if (i === 1) {
-            symbs.push(<Nut size={size} key={"nut"} />);
+            symbs.push(<Nut size={size} horizontal={horizontal} key={"nut"} />);
         }
         const symbol = (i + zero - GetRoot(rootNote) + SymbolList.length) % SymbolList.length;
         let emphasized = symbols.indexOf(symbol) > -1;
@@ -198,14 +198,14 @@ class App extends React.Component {
     }
 
     render() {
-        const size = (this.state.width - (ROOTS + NUT + 2 * PADDING)) / (this.state.length + 1);
         const horizontal = this.state.width > this.state.height;
+        const size = (Math.max(this.state.width, this.state.height) - (ROOTS + NUT + 2 * PADDING)) / (this.state.length + 1);
         return (
             <div style={{display: "flex", flexDirection: horizontal ? "row" : "column", height: "100%", width: "100%"}}>
                 <RootSelector horizontal={horizontal} selectedRoot={this.state.rootNote} selectRoot={(rootNote)=>{
                     this.setState({rootNote: rootNote});
                 }}/>
-                <Neck size={size} horizontal={horiztonal} rootNote={this.state.rootNote} symbols={this.state.symbols} length={this.state.length} selectSymbol={(symbol) => {
+                <Neck size={size} horizontal={horizontal} rootNote={this.state.rootNote} symbols={this.state.symbols} length={this.state.length} selectSymbol={(symbol) => {
                     if (this.state.symbols.indexOf(symbol) >= 0) {
                         this.state.symbols.splice(this.state.symbols.indexOf(symbol), 1);
                     } else {
