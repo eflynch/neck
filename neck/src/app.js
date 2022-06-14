@@ -71,7 +71,7 @@ const String = ({size, horizontal, zero, rootNote, symbols, length, selectSymbol
     );
 }
 
-const Neck = ({size, horizontal, rootNote, symbols, length, selectSymbol}) => {
+const Neck = ({zeros, size, horizontal, rootNote, symbols, length, selectSymbol}) => {
     return (
         <div style={{
             flexGrow: 1,
@@ -79,14 +79,11 @@ const Neck = ({size, horizontal, rootNote, symbols, length, selectSymbol}) => {
             justifyContent: "space-around",
             alignItems: "center",
             display: "flex",
-            flexDirection: horizontal ? "column" : "row"
+            flexDirection: horizontal ? "column" : "row-reverse"
         }}>
-            <String size={size} horizontal={horizontal} zero={4} rootNote={rootNote} symbols={symbols} selectSymbol={selectSymbol} length={length} />
-            <String size={size} horizontal={horizontal} zero={11} rootNote={rootNote} symbols={symbols} selectSymbol={selectSymbol} length={length}/>
-            <String size={size} horizontal={horizontal} zero={7} rootNote={rootNote} symbols={symbols} selectSymbol={selectSymbol} length={length}/>
-            <String size={size} horizontal={horizontal} zero={2} rootNote={rootNote} symbols={symbols} selectSymbol={selectSymbol} length={length}/>
-            <String size={size} horizontal={horizontal} zero={9} rootNote={rootNote} symbols={symbols} selectSymbol={selectSymbol} length={length}/>
-            <String size={size} horizontal={horizontal} zero={4} rootNote={rootNote} symbols={symbols} selectSymbol={selectSymbol} length={length}/>
+            {zeros.map((zero, i) => {
+                return <String key={i} size={size} horizontal={horizontal} zero={zero} rootNote={rootNote} symbols={symbols} selectSymbol={selectSymbol} length={length} /> ;
+            })}
         </div>
     );   
 }
@@ -157,6 +154,58 @@ const RootSelector = ({horizontal, selectedRoot, selectRoot}) => {
     );
 }
 
+const Tunings = [
+    "standard",
+    "dadgad",
+    "open-g",
+    "open-cmaj9"
+];
+
+
+const Tuning = ({selected, tuning, selectTuning}) => {
+    return (
+        <button style={{
+            color: selected ? SELECTED_TEXT_COLOR: UNSELECTED_TEXT_COLOR,
+            backgroundColor: selected ? SELECTED_BACKGROUND_COLOR : UNSELECTED_BACKGROUND_COLOR,
+            width: ROOTS,
+            display: "flex",
+            fontSize: 14,
+            borderRadius: 5,
+            alignItems: "center",
+            justifyContent: "center",
+            flexGrow: 1,
+        }} onClick={()=>{selectTuning(tuning);}}>{tuning}</button>
+    );
+};
+
+const TuningSelector = ({tuning, selectTuning, horizontal}) => {
+    return (
+        <div style={{
+            display: "flex",
+            flexDirection: horizontal ? "column" : "row",
+            justifyContent: "space-between"
+        }}>
+            {Tunings.map((thisTuning) => {
+                return <Tuning key={thisTuning} selected={tuning==thisTuning} tuning={thisTuning} selectTuning={selectTuning} />;
+            })}
+        </div>
+    );
+}
+
+const GetZerosForTuning = (tuning) => {
+    switch(tuning){
+        case "open-cmaj9":
+            return [4, 11, 7, 2, 7, 0];
+        case "open-g":
+            return [2, 11, 7, 2, 7, 2];
+        case "dadgad":
+            return [2, 9, 7, 2, 9, 2];
+        case "standard":
+        default:
+            return [4, 11, 7, 2, 9, 4];
+    }
+}
+
 class App extends React.Component {
     constructor(props){
         super(props);
@@ -165,7 +214,8 @@ class App extends React.Component {
             height: undefined,
             rootNote: "E",
             symbols: [0, 3, 7],
-            length: 12
+            length: 12,
+            tuning: "standard"
         };
     }
 
@@ -205,7 +255,8 @@ class App extends React.Component {
                 <RootSelector horizontal={horizontal} selectedRoot={this.state.rootNote} selectRoot={(rootNote)=>{
                     this.setState({rootNote: rootNote});
                 }}/>
-                <Neck size={size} horizontal={horizontal} rootNote={this.state.rootNote} symbols={this.state.symbols} length={this.state.length} selectSymbol={(symbol) => {
+                <TuningSelector horizontal={horizontal} tuning={this.state.tuning} selectTuning={(tuning)=>{this.setState({tuning: tuning})}} />
+                <Neck zeros={GetZerosForTuning(this.state.tuning)} size={size} horizontal={horizontal} rootNote={this.state.rootNote} symbols={this.state.symbols} length={this.state.length} selectSymbol={(symbol) => {
                     if (this.state.symbols.indexOf(symbol) >= 0) {
                         this.state.symbols.splice(this.state.symbols.indexOf(symbol), 1);
                     } else {
