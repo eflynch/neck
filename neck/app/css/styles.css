@@ -12,6 +12,10 @@ body {
     background-color: white;
 }
 
+#content {
+    height: 100%;
+}
+
 .symbol {
     font-weight: 100;
 }

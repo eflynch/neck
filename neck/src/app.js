@@ -72,14 +72,14 @@ const Slug = ({width, height}) => {
 const Dots = ({size, horizontal, length}) => {
     let dots = [];
     const SIZE = 8;
-    dots.push(<Slug width={horizontal ? size : SIZE} height={horizontal ? SIZE : size}/>);
+    dots.push(<Slug key={"-1"} width={horizontal ? size : SIZE} height={horizontal ? SIZE : size}/>);
     for (let i=0; i<length; i++){
         if (i === 1) {
-            dots.push(<Slug width={5} height={5}/>);
+            dots.push(<Slug key={"nut"} width={5} height={5}/>);
         }
         const numDots = NumDots[i];
         if (numDots) {
-            dots.push(<span style={{
+            dots.push(<span key={i} style={{
                 fontSize: 8,
                 width: horizontal ? size : SIZE,
                 height: horizontal ? SIZE : size,
@@ -88,7 +88,7 @@ const Dots = ({size, horizontal, length}) => {
                 alignItems: "center"
             }}><span>{"●".repeat(numDots)}</span></span>);
         } else {
-            dots.push(<Slug width={horizontal ? size : SIZE} height={horizontal ? SIZE : size}/>);
+            dots.push(<Slug key={i} width={horizontal ? size : SIZE} height={horizontal ? SIZE : size}/>);
         }
     }
     return (
@@ -296,8 +296,8 @@ const GetDimensions = () => {
     let width = 0;
     let height = 0;
     if (iOS) {
-        width = window.orientation === 0 ? screen.width : screen.height;
-        height = window.orientation === 0 ? screen.height : screen.width;
+        width= screen.width;
+        height= screen.height;
     } else {
         width = window.innerWidth;
         height = window.innerHeight;
