@@ -186,7 +186,8 @@ const Tunings = [
     "standard",
     "dadgad",
     "open-g",
-    "open-cmaj9"
+    "open-cmaj9",
+    "drop-d"
 ];
 
 
@@ -228,6 +229,8 @@ const TuningSelector = ({tuning, selectTuning, horizontal}) => {
 
 const GetZerosForTuning = (tuning) => {
     switch(tuning){
+        case "drop-d":
+            return [4, 11, 7, 2, 9, 2];
         case "open-cmaj9":
             return [4, 11, 7, 2, 7, 0];
         case "open-g":
