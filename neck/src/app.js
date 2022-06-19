@@ -18,13 +18,6 @@ const ROOTS = 40;
 const CHORDS = 42;
 const TUNINGS = 40;
 
-function arrayEquals(a, b) {
-    return Array.isArray(a) &&
-        Array.isArray(b) &&
-        a.length === b.length &&
-        a.every((val, index) => val === b[index]);
-}
-
 
 const maybeClass = (flag, name) => (flag ? name : "");
 
@@ -307,15 +300,91 @@ const GetDimensions = () => {
     };
 }
 
-const Donate = () => {
+const Buttons = ({showHelp}) => {
     return (
-        <form style={{
+        <div style={{
             position:"fixed",
             bottom: 5,
-            right: 5
-        }} action="https://www.paypal.me/boardzorg" target="_blank">
-            <button type="submit" title="donate">❤</button>
-        </form>
+            right: 5,
+            display:"flex"
+        }}>
+            <form action="https://www.paypal.me/boardzorg" target="_blank">
+                <button type="submit" title="donate">❤</button>
+            </form>
+            <button onClick={showHelp}>?</button>
+        </div>
+    );
+}
+
+const FTUE = ({close}) => {
+    return (
+        <div style={{
+            fontFamily:"system-ui",
+            fontSize:12,
+            position:"fixed",
+            margin:"auto",
+            top: 20,
+            right: 30,
+            left: 30,
+            bottom: 20,
+            display:"flex",
+            alignItems:"center",
+            justifyContent:"center",
+        }}>
+            <div style={{
+                position:"relative",
+                fontFamily:"system-ui",
+                fontSize:12,
+                backgroundColor:"white",
+                borderRadius: 5,
+                border: "black solid 1px",
+                padding: 15,
+                display:"flex",
+                alignItems:"stretch",
+                justifyContent:"flex-start",
+                flexDirection: "column"
+            }}>
+                <button style={{position:"absolute", right: 5, top: 5}} onClick={close}>x</button>
+                <div style={{display:"flex", flexWrap:"wrap", justifyContent:"space-around"}}> 
+                    <div style={{maxWidth:350}}>
+                    <p style={{textAlign:"justify"}}>
+                    <b>Neck</b> is a tool for exploring the neck of a guitar
+                    and how to play chords in different positions. 
+                        Select a root note to highlight that note everywhere it appears on the guitar.
+                        From there you can select a chord symbol or manually construct a chord from
+                        intervals above that root by clicking on the frets.
+                        Select a non-standard tuning if desired.
+                        The intervals are represented symbolically inspired by common chord symbols that
+                        contain them. 
+                        Click the heart if you want to fund the creator.
+                        </p>
+                    </div>
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>symbol</th>
+                            <th>description</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>[Root]</td><td>root note is noted with letter</td></tr>
+                            <tr><td>♭</td><td> flat-2</td></tr>
+                            <tr><td>2</td><td> 2 or 9 (defining of sus2 and add9 chords)</td></tr>
+                            <tr><td>m</td><td> minor 3rd (defining of minor chords)</td></tr>
+                            <tr><td>M</td><td> major 3rd (defining of major chords)</td></tr>
+                            <tr><td>4</td><td> perfect 4th (defining of sus4)</td></tr>
+                            <tr><td>T</td><td> "tritone" (defining of diminished chords)</td></tr>
+                            <tr><td>5</td><td> perfect 5th (common in many chords)</td></tr>
+                            <tr><td>+</td><td> augmented 5th and minor 6th</td></tr>
+                            <tr><td>○</td><td> major 6th and diminished 7th</td></tr>
+                            <tr><td>7</td><td> minor 7th (defining of a dominant 7 chord)</td></tr>
+                            <tr><td>△</td><td> major 7th (defining of major 7th chord)</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <button onClick={close}>Get Started</button>
+            </div>
+        </div>
     );
 }
 
@@ -326,6 +395,7 @@ const App = () => {
     const [length, setLength] = useSessionStorage("length", 12);
     const [tuning, setTuning] = useSessionStorage("tuning", "standard");
     const [dimensions, setDimensions] = useState(GetDimensions());
+    const [showFTUE, setShowFTUE] = useSessionStorage("ftue", "show");
 
     useEffect(()=>{
         const updateDimensions = () => {
@@ -348,7 +418,8 @@ const App = () => {
     );
     return (
         <div style={{display: "flex", flexDirection: horizontal ? "row" : "column", height: "100%", width: "100%"}}>
-            <Donate />
+            <Buttons showHelp={()=>{setShowFTUE("show");}} />
+            {showFTUE === "show" ? <FTUE close={()=>{setShowFTUE("hide");}}/> : <></>}
             <TuningSelector horizontal={horizontal} tuning={tuning} selectTuning={(tuning)=>{setTuning(tuning);}} />
             <RootSelector horizontal={horizontal} selectedRoot={rootNote} selectRoot={(rootNote)=>{
                 setRootNote(rootNote);
