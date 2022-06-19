@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import {useSessionStorage} from 'react-use';
 import update from 'immutability-helper';
 
 const SymbolList = ["", "♭", "2", "m", "M", "4", "T", "5", "+", "○", "7", "△"];
@@ -256,10 +257,11 @@ const GetDimensions = () => {
 }
 
 const App = () => {
-    const [rootNote, setRootNote] = useState("E");
-    const [symbols, setSymbols] = useState([]);
-    const [length, setLength] = useState(12);
-    const [tuning, setTuning] = useState("standard");
+
+    const [rootNote, setRootNote] = useSessionStorage("rootNote", "E");
+    const [symbols, setSymbols] = useSessionStorage("symbols", []);
+    const [length, setLength] = useSessionStorage("length", 12);
+    const [tuning, setTuning] = useSessionStorage("tuning", "standard");
     const [dimensions, setDimensions] = useState(GetDimensions());
 
     useEffect(()=>{
