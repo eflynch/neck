@@ -6,6 +6,8 @@ const SymbolList = ["", "♭", "2", "m", "M", "4", "T", "5", "+", "○", "7", "�
 
 const RootNotes = ["C", "D♭", "D", "E♭", "E", "F", "G♭", "G", "A♭", "A", "B♭", "B"];
 
+const NumDots = [0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 2, 0];
+
 const GetRoot = (letter) => {
     return RootNotes.indexOf(letter);
 }
@@ -63,6 +65,43 @@ const Nut = ({size, horizontal}) => {
     );
 }
 
+const Slug = ({width, height}) => {
+    return <span style={{width: width, height:height}}/>;
+}
+
+const Dots = ({size, horizontal, length}) => {
+    let dots = [];
+    const SIZE = 8;
+    dots.push(<Slug width={horizontal ? size : SIZE} height={horizontal ? SIZE : size}/>);
+    for (let i=0; i<length; i++){
+        if (i === 1) {
+            dots.push(<Slug width={5} height={5}/>);
+        }
+        const numDots = NumDots[i];
+        if (numDots) {
+            dots.push(<span style={{
+                fontSize: 8,
+                width: horizontal ? size : SIZE,
+                height: horizontal ? SIZE : size,
+                display:"flex",
+                justifyContent: "center",
+                alignItems: "center"
+            }}><span>{"●".repeat(numDots)}</span></span>);
+        } else {
+            dots.push(<Slug width={horizontal ? size : SIZE} height={horizontal ? SIZE : size}/>);
+        }
+    }
+    return (
+        <div style={{
+            display: "flex",
+            flexDirection: horizontal ? "row" : "column",
+            justifyContent: "space-around"
+        }}>
+            {dots}
+        </div>
+    );
+}
+
 const String = ({size, horizontal, zero, rootNote, symbols, length, selectSymbol}) => {
     let symbs = [];
     for (let i=0; i<length + 1; i++){
@@ -89,14 +128,23 @@ const Neck = ({zeros, size, horizontal, rootNote, symbols, length, selectSymbol}
         <div style={{
             flexGrow: 1,
             padding: PADDING,
-            justifyContent: "space-around",
+            justifyContent: "center",
             alignItems: "center",
             display: "flex",
             flexDirection: horizontal ? "column" : "row-reverse"
         }}>
-            {zeros.map((zero, i) => {
-                return <String key={i} size={size} horizontal={horizontal} zero={zero} rootNote={rootNote} symbols={symbols} selectSymbol={selectSymbol} length={length} /> ;
-            })}
+            <Dots size={size} horizontal={horizontal} length={length} />
+            <div style={{
+                justifyContent: "space-around",
+                alignItems: "center",
+                display: "flex",
+                flexDirection: horizontal ? "column" : "row-reverse"
+            }}>
+                {zeros.map((zero, i) => {
+                    return <String key={i} size={size} horizontal={horizontal} zero={zero} rootNote={rootNote} symbols={symbols} selectSymbol={selectSymbol} length={length} /> ;
+                })}
+            </div>
+            <Dots size={size} horizontal={horizontal} length={length} />
         </div>
     );   
 }
