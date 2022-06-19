@@ -307,6 +307,18 @@ const GetDimensions = () => {
     };
 }
 
+const Donate = () => {
+    return (
+        <form style={{
+            position:"fixed",
+            bottom: 5,
+            right: 5
+        }} action="https://www.paypal.me/boardzorg" target="_blank">
+            <button type="submit" title="donate">❤</button>
+        </form>
+    );
+}
+
 const App = () => {
 
     const [rootNote, setRootNote] = useSessionStorage("rootNote", "E");
@@ -336,6 +348,7 @@ const App = () => {
     );
     return (
         <div style={{display: "flex", flexDirection: horizontal ? "row" : "column", height: "100%", width: "100%"}}>
+            <Donate />
             <TuningSelector horizontal={horizontal} tuning={tuning} selectTuning={(tuning)=>{setTuning(tuning);}} />
             <RootSelector horizontal={horizontal} selectedRoot={rootNote} selectRoot={(rootNote)=>{
                 setRootNote(rootNote);
