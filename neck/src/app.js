@@ -95,15 +95,28 @@ const Dots = ({size, horizontal, length}) => {
     );
 }
 
-const String = ({size, horizontal, zero, rootNote, symbols, length, selectSymbol}) => {
+const String = ({selectAll, selectedFret, selectFret, size, horizontal, zero, rootNote, symbols, length, selectSymbol}) => {
     let symbs = [];
     for (let i=0; i<length + 1; i++){
         if (i === 1) {
             symbs.push(<Nut size={size} horizontal={horizontal} key={"nut"} />);
         }
         const symbol = (i + zero - GetRoot(rootNote) + SymbolList.length) % SymbolList.length;
-        let emphasized = symbols.indexOf(symbol) > -1;
-        symbs.push(<Symbol rootNote={rootNote} size={size} emphasized={emphasized} key={i} sym={symbol} select={selectSymbol}/>);
+        const emphasizedSymbol = symbols.indexOf(symbol) > -1;
+        const emphasizedFret = i === selectedFret;
+        symbs.push(<Symbol
+            rootNote={rootNote}
+            size={size}
+            emphasized={selectAll ? emphasizedSymbol : emphasizedFret}
+            key={i}
+            sym={symbol}
+            select={(symbol)=>{
+                if (selectAll) {
+                    selectSymbol(symbol);
+                } else {
+                    selectFret(emphasizedFret ? null : i);
+                }
+            }}/>);
     }
     return (
         <div style={{
@@ -116,7 +129,7 @@ const String = ({size, horizontal, zero, rootNote, symbols, length, selectSymbol
     );
 }
 
-const Neck = ({zeros, size, horizontal, rootNote, symbols, length, selectSymbol}) => {
+const Neck = ({zeros, frets, setFrets, selectAll, size, horizontal, rootNote, symbols, length, selectSymbol}) => {
     return (
         <div style={{
             flexGrow: 1,
@@ -134,7 +147,13 @@ const Neck = ({zeros, size, horizontal, rootNote, symbols, length, selectSymbol}
                 flexDirection: horizontal ? "column" : "row-reverse"
             }}>
                 {zeros.map((zero, i) => {
-                    return <String key={i} size={size} horizontal={horizontal} zero={zero} rootNote={rootNote} symbols={symbols} selectSymbol={selectSymbol} length={length} /> ;
+                    return <String
+                        key={i} size={size} horizontal={horizontal}
+                        zero={zero} rootNote={rootNote} symbols={symbols} selectSymbol={selectSymbol}
+                        selectAll={selectAll} selectedFret={frets[i]} selectFret={(fret)=>{
+                            setFrets(update(frets, {[i]: {$set: fret === null ? "x" : fret}}));
+                        }}
+                        length={length} /> ;
                 })}
             </div>
             <Dots size={size} horizontal={horizontal} length={length} />
@@ -300,7 +319,7 @@ const GetDimensions = () => {
     };
 }
 
-const Buttons = ({showHelp}) => {
+const Buttons = ({selectAll, setSelectAll, showHelp}) => {
     return (
         <div style={{
             position:"fixed",
@@ -312,6 +331,9 @@ const Buttons = ({showHelp}) => {
                 <button type="submit" title="donate">❤</button>
             </form>
             <button onClick={showHelp}>?</button>
+            <button onClick={()=>{
+                setSelectAll(!selectAll);
+            }}>{selectAll ? "fret" : "chord"}</button>
         </div>
     );
 }
@@ -396,6 +418,8 @@ const App = () => {
     const [tuning, setTuning] = useSessionStorage("tuning", "standard");
     const [dimensions, setDimensions] = useState(GetDimensions());
     const [showFTUE, setShowFTUE] = useSessionStorage("ftue", "show");
+    const [selectAll, setSelectAll] = useSessionStorage("selectAll", true);
+    const [frets, setFrets] = useSessionStorage("frets", ["x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x"]);
 
     useEffect(()=>{
         const updateDimensions = () => {
@@ -418,21 +442,30 @@ const App = () => {
     );
     return (
         <div style={{display: "flex", flexDirection: horizontal ? "row" : "column", height: "100%", width: "100%"}}>
-            <Buttons showHelp={()=>{setShowFTUE("show");}} />
+            <Buttons setSelectAll={setSelectAll} selectAll={selectAll} showHelp={()=>{setShowFTUE("show");}} />
             {showFTUE === "show" ? <FTUE close={()=>{setShowFTUE("hide");}}/> : <></>}
             <TuningSelector horizontal={horizontal} tuning={tuning} selectTuning={(tuning)=>{setTuning(tuning);}} />
             <RootSelector horizontal={horizontal} selectedRoot={rootNote} selectRoot={(rootNote)=>{
                 setRootNote(rootNote);
             }}/>
-            <ChordSelector horizontal={horizontal} rootNote={rootNote} symbols={symbols} selectSymbols={setSymbols} />
-            <Neck zeros={GetZerosForTuning(tuning)} size={size} horizontal={horizontal} rootNote={rootNote} symbols={symbols} length={length} selectSymbol={(symbol) => {
-                setSymbols((symbols) => {
-                    if (symbols.indexOf(symbol) >= 0) {
-                        return update(symbols, {$splice: [[symbols.indexOf(symbol), 1]]}).sort();
-                    } else {
-                        return update(symbols, {$push: [symbol]}).sort();
-                    }
-                });
+            {selectAll ? <ChordSelector horizontal={horizontal} rootNote={rootNote} symbols={symbols} selectSymbols={setSymbols} /> : <></> }
+            <Neck selectAll={selectAll}
+                frets={frets}
+                setFrets={setFrets}
+                zeros={GetZerosForTuning(tuning)}
+                size={size}
+                horizontal={horizontal}
+                rootNote={rootNote}
+                symbols={symbols}
+                length={length}
+                selectSymbol={(symbol) => {
+                    setSymbols((symbols) => {
+                        if (symbols.indexOf(symbol) >= 0) {
+                            return update(symbols, {$splice: [[symbols.indexOf(symbol), 1]]}).sort();
+                        } else {
+                            return update(symbols, {$push: [symbol]}).sort();
+                        }
+                    });
             }}/>
         </div>
     );
