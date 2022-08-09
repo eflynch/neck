@@ -21,8 +21,9 @@ const TUNINGS = 40;
 
 const maybeClass = (flag, name) => (flag ? name : "");
 
-const Symbol = ({sym, rootNote, emphasized, select, size}) => {
+const Symbol = ({sym, useNote, rootNote, emphasized, select, size}) => {
     const margin = 2;
+    const symbol = useNote ? RootNotes[(sym + GetRoot(rootNote) + 12) % 12] : SymbolList[sym] || rootNote;
     return (
         <div
             className={[
@@ -43,7 +44,7 @@ const Symbol = ({sym, rootNote, emphasized, select, size}) => {
                 justifyContent: "center"
             }} onClick={(e)=>{
                 select(sym);
-            }} >{SymbolList[sym] || rootNote}</div>
+            }} >{symbol}</div>
     );
 };
 
@@ -95,7 +96,7 @@ const Dots = ({size, horizontal, length}) => {
     );
 }
 
-const String = ({selectAll, selectedFret, selectFret, size, horizontal, zero, rootNote, symbols, length, selectSymbol}) => {
+const String = ({useNotes, selectAll, selectedFret, selectFret, size, horizontal, zero, rootNote, symbols, length, selectSymbol}) => {
     let symbs = [];
     for (let i=0; i<length + 1; i++){
         if (i === 1) {
@@ -107,6 +108,7 @@ const String = ({selectAll, selectedFret, selectFret, size, horizontal, zero, ro
         symbs.push(<Symbol
             rootNote={rootNote}
             size={size}
+            useNote={useNotes}
             emphasized={selectAll ? emphasizedSymbol : emphasizedFret}
             key={i}
             sym={symbol}
@@ -129,7 +131,7 @@ const String = ({selectAll, selectedFret, selectFret, size, horizontal, zero, ro
     );
 }
 
-const Neck = ({zeros, frets, setFrets, selectAll, size, horizontal, rootNote, symbols, length, selectSymbol}) => {
+const Neck = ({useNotes, zeros, frets, setFrets, selectAll, size, horizontal, rootNote, symbols, length, selectSymbol}) => {
     return (
         <div style={{
             flexGrow: 1,
@@ -149,6 +151,7 @@ const Neck = ({zeros, frets, setFrets, selectAll, size, horizontal, rootNote, sy
                 {zeros.map((zero, i) => {
                     return <String
                         key={i} size={size} horizontal={horizontal}
+                        useNotes={useNotes}
                         zero={zero} rootNote={rootNote} symbols={symbols} selectSymbol={selectSymbol}
                         selectAll={selectAll} selectedFret={frets[i]} selectFret={(fret)=>{
                             setFrets(update(frets, {[i]: {$set: fret === null ? "x" : fret}}));
@@ -247,7 +250,11 @@ const Tunings = [
     "dadgad",
     "open-g",
     "open-cmaj9",
-    "drop-d"
+    "drop-d",
+    "banjo",
+    "sawmill",
+    "cgda",
+    "gdae"
 ];
 
 
@@ -297,6 +304,14 @@ const GetZerosForTuning = (tuning) => {
             return [2, 11, 7, 2, 7, 2];
         case "dadgad":
             return [2, 9, 7, 2, 9, 2];
+        case "banjo":
+            return [2, 11, 7, 2];
+        case "sawmill":
+            return [2, 0, 7, 2];
+        case "cgda":
+            return [9, 2, 7, 0];
+        case "gdae":
+            return [4, 9, 2, 7];
         case "standard":
         default:
             return [4, 11, 7, 2, 9, 4];
@@ -319,7 +334,7 @@ const GetDimensions = () => {
     };
 }
 
-const Buttons = ({selectAll, setSelectAll, showHelp}) => {
+const Buttons = ({useNotes, selectAll, setSelectAll, setUseNotes, showHelp}) => {
     return (
         <div style={{
             position:"fixed",
@@ -334,6 +349,9 @@ const Buttons = ({selectAll, setSelectAll, showHelp}) => {
             <button onClick={()=>{
                 setSelectAll(!selectAll);
             }}>{selectAll ? "fret" : "chord"}</button>
+            <button onClick={()=>{
+                setUseNotes(!useNotes);
+            }}>{useNotes ? "note" : "symbol"}</button>
         </div>
     );
 }
@@ -419,6 +437,7 @@ const App = () => {
     const [dimensions, setDimensions] = useState(GetDimensions());
     const [showFTUE, setShowFTUE] = useSessionStorage("ftue", "show");
     const [selectAll, setSelectAll] = useSessionStorage("selectAll", true);
+    const [useNotes, setUseNotes] = useSessionStorage("useNotes", false);
     const [frets, setFrets] = useSessionStorage("frets", ["x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x", "x"]);
 
     useEffect(()=>{
@@ -436,13 +455,14 @@ const App = () => {
     const horizontal = dimensions.width > dimensions.height;
     const majorDimension = Math.max(dimensions.width, dimensions.height);
     const minorDimension = Math.min(dimensions.width, dimensions.height);
+    const zeros = GetZerosForTuning(tuning);
     const size = Math.min(
         (majorDimension - (ROOTS + CHORDS + TUNINGS + NUT + 2 * PADDING)) / (length + 1),
-        ((minorDimension - (6 * PADDING)) / 6)
+        ((minorDimension - (zeros.length * PADDING)) / zeros.length)
     );
     return (
         <div style={{display: "flex", flexDirection: horizontal ? "row" : "column", height: "100%", width: "100%"}}>
-            <Buttons setSelectAll={setSelectAll} selectAll={selectAll} showHelp={()=>{setShowFTUE("show");}} />
+            <Buttons useNotes={useNotes} setUseNotes={setUseNotes} setSelectAll={setSelectAll} selectAll={selectAll} showHelp={()=>{setShowFTUE("show");}} />
             {showFTUE === "show" ? <FTUE close={()=>{setShowFTUE("hide");}}/> : <></>}
             <TuningSelector horizontal={horizontal} tuning={tuning} selectTuning={(tuning)=>{setTuning(tuning);}} />
             <RootSelector horizontal={horizontal} selectedRoot={rootNote} selectRoot={(rootNote)=>{
@@ -452,6 +472,7 @@ const App = () => {
             <Neck selectAll={selectAll}
                 frets={frets}
                 setFrets={setFrets}
+                useNotes={useNotes}
                 zeros={GetZerosForTuning(tuning)}
                 size={size}
                 horizontal={horizontal}
